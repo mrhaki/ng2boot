@@ -1,0 +1,42 @@
+plugins {
+     id 'java'
+     id 'com.moowork.node' version '1.1.1'
+}
+
+ext {
+    frontendOutputDir = file("${buildDir}/frontend")
+    frontendSrcDir = file("${projectDir}/src/main/frontend")
+}
+
+sourceSets {
+    main {
+        output.dir frontendOutputDir, builtBy: 'npm_run_build'
+    }
+}
+[classes, processResources]*.enabled = false
+
+node {
+    version = '6.9.1'
+    npmVersion = '4.0.3'
+    download = true
+    workDir = file("${buildDir}/node")
+    nodeModulesDir = file("${frontendSrcDir}/node_modules")
+}
+
+npm_run_build {
+    dependsOn npmInstall
+
+    inputs.dir frontendSrcDir
+    outputs.dirs sourceSets.main.output
+
+    doLast {
+        copy {
+            from file("${frontendSrcDir}/dist")
+            into file("${frontendOutputDir}/static")
+        }   
+    }
+}
+
+tasks.withType(NpmTask) {
+    workingDir = frontendSrcDir
+}
