@@ -10,11 +10,21 @@ ext {
 
 sourceSets {
     main {
+        // We set the main source set output directory
+        // and tell Gradle it is built by the task npm_run_build.
+        // This way we can re-use all the default functionality
+        // of the Java plugin to create a JAR file that
+        // can be used as project dependency in the
+        // backend project.
         output.dir frontendOutputDir, builtBy: 'npm_run_build'
     }
 }
+// We disable the default classes and processResources tasks,
+// because we do not have Java source files here and the
+// resources are build and processed by npm_run_build.
 [classes, processResources]*.enabled = false
 
+// Configure node plugin.
 node {
     version = '6.9.1'
     npmVersion = '4.0.3'
@@ -26,10 +36,16 @@ node {
 npm_run_build {
     dependsOn npmInstall
 
+    // We use Gradle's incremental build functionality,
+    // so when nothing changes in the input and output
+    // directories the task can be skipped.
     inputs.dir frontendSrcDir
     outputs.dirs sourceSets.main.output
 
     doLast {
+        // Finally we copy the resources from the
+        // src/main/frontend/dist directory to
+        // build/frontend/static.
         copy {
             from file("${frontendSrcDir}/dist")
             into file("${frontendOutputDir}/static")
@@ -38,5 +54,9 @@ npm_run_build {
 }
 
 tasks.withType(NpmTask) {
+    // Set working directory for all NpmTasks
+    // like npmInstall, npm_run_build, but 
+    // for example also npm_run_start to start
+    // a development server for the frontend code.
     workingDir = frontendSrcDir
 }
