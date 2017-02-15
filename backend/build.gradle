@@ -11,6 +11,21 @@ repositories {
 dependencies {
     compile('org.springframework.boot:spring-boot-starter-web')
     compile('org.springframework.boot:spring-boot-devtools')
-    compile(project(':frontend'))
     testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+evaluationDependsOn(':frontend')
+
+sourceSets {
+    main {
+        resources {
+            srcDir files(project(":frontend").sourceSets.main.output)
+        }
+    }
+}
+
+bootRun {
+    // Enable live reload, combine with
+    // task :frontend:npm_run_buildWatch
+    addResources = true
 }

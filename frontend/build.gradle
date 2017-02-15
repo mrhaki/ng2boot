@@ -41,16 +41,6 @@ npm_run_build {
     // directories the task can be skipped.
     inputs.dir frontendSrcDir
     outputs.dirs sourceSets.main.output
-
-    doLast {
-        // Finally we copy the resources from the
-        // src/main/frontend/dist directory to
-        // build/frontend/static.
-        copy {
-            from file("${frontendSrcDir}/dist")
-            into file("${frontendOutputDir}/static")
-        }   
-    }
 }
 
 tasks.withType(NpmTask) {
